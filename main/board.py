@@ -8,18 +8,19 @@ from carbon.gui.label import Label
 from main.constants import THEME_FONT_COLOR
 
 
-CELL_COLOR_UNFOCUS = '#2e2e2e'
-CELL_COLOR_FOCUS = '#444444'
-CELL_BORDER_COLOR = '#666666'
+CELL_COLOR_UNFOCUS = '#000'
+CELL_COLOR_FOCUS = '#111'
+CELL_COLOR_FOCUS_CTR = '#333'
+CELL_BORDER_COLOR = '#777'
 BOX_BORDER_COLOR = '#dddddd'
 FONT_COLOR_FOCUS = '#ffffff'
 FONT_COLOR_UNFOCUS = '#bbbbbb'
-FONT_COLOR_GIVEN = '#777777'
+FONT_COLOR_GIVEN = '#555'
 
 NUM_PAD_GAP = 45
-NUM_PAD_BG_COLOR = '#222222'
-NUM_PAD_ALLOWED_COLOR = '#bbbbbb'
-NUM_PAD_UNALLOWED_COLOR = '#333333'
+NUM_PAD_BG_COLOR = '#000'
+NUM_PAD_ALLOWED_COLOR = '#fff'
+NUM_PAD_UNALLOWED_COLOR = '#555'
 
 ## Sudoku puzzle with fewer than 17 givens is mathematically impossible to solve
 N_GIVENS_EASY = [40, 45]
@@ -169,16 +170,28 @@ class Board:
 
     def refocus_cell(self, idx):
 
-        self.page.itemconfig(f'cell_{self.Runtime.board_focused_cell_idx}', fill=CELL_COLOR_UNFOCUS)
-        if self.Runtime.board_focused_cell_idx in Board.given_indices:
-            self.page.itemconfig(f'num_{self.Runtime.board_focused_cell_idx}', fill=FONT_COLOR_GIVEN)
-        else:
-            self.page.itemconfig(f'num_{self.Runtime.board_focused_cell_idx}', fill=FONT_COLOR_UNFOCUS)
+        ## restore the normal color of the previously focused cells
+        _y = self.Runtime.board_focused_cell_idx // 9
+        _x = self.Runtime.board_focused_cell_idx % 9
+        cross = [(_x, i) for i in range(9)] + [(i, _y) for i in range(9)]
+        for X, Y in cross:
+            _idx = X+Y*9
+            self.page.itemconfigure(f'cell_{_idx}', fill=CELL_COLOR_UNFOCUS)
+            if _idx not in Board.given_indices:  # givens remain unchanged
+                self.page.itemconfigure(f'num_{_idx}', fill=FONT_COLOR_UNFOCUS)
 
+        ## new focused cell
         self.Runtime.board_focused_cell_idx = idx
+        y = idx // 9
+        x = idx % 9
+        cross = [(x, i) for i in range(9)] + [(i, y) for i in range(9)]
+        for X, Y in cross:
+            _idx = X+Y*9
+            self.page.itemconfigure(f'cell_{_idx}', fill=CELL_COLOR_FOCUS)
+            if _idx not in Board.given_indices:  # givens don't have to be highlighted
+                self.page.itemconfigure(f'num_{_idx}', fill=FONT_COLOR_FOCUS)
+        self.page.itemconfigure(f'cell_{x}_{y}', fill=CELL_COLOR_FOCUS_CTR)
 
-        self.page.itemconfig(f'cell_{self.Runtime.board_focused_cell_idx}', fill=CELL_COLOR_FOCUS)
-        self.page.itemconfig(f'num_{self.Runtime.board_focused_cell_idx}', fill=FONT_COLOR_FOCUS)
 
     def pause(self):
         self.page.itemconfig('pause', state='hidden')

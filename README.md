@@ -1,4 +1,5 @@
 ## Simple Python Sudoku App
+
 ![Demo gif](demo.gif)
 
 ## Installation
@@ -8,6 +9,11 @@
     ```sh
     python Sudoku
     ```
+
+## Changelog
+
+- 1.1.0 (May 17, 2023):
+    - Updated board color
 
 ## License
 This project is licensed under the MIT license
